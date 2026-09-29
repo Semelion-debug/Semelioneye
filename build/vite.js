@@ -35,20 +35,14 @@ export function createBrowserViteConfig({
     },
 
     server: {
-      host: host || 'localhost',
+      // Render needs the server to listen on all interfaces.
+      host: '0.0.0.0',
+
+      // Use Render's PORT when supplied, otherwise use the local default.
       port: parseInt(port, 10) || 4173,
 
-      // Allow the Render deployment hostname while preserving the
-      // existing localhost/local-network behavior.
-      allowedHosts:
-        host === '0.0.0.0' || host === '::'
-          ? true
-          : [
-              'localhost',
-              '127.0.0.1',
-              '.local',
-              'semelioneye.onrender.com',
-            ],
+      // Allow Render's public hostname.
+      allowedHosts: true,
 
       fs: {
         deny: [
