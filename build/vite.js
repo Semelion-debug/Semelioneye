@@ -13,10 +13,15 @@ export function createBrowserViteConfig({
 } = {}) {
   return {
     plugins: [cesium(), applicationHtmlPlugin(), ...plugins],
+
     ...(publicDir === undefined ? {} : { publicDir }),
+
     // A production build must not clean the dependency cache a running dev
     // server is still serving optimized module URLs from.
-    ...(command === 'build' ? { cacheDir: 'node_modules/.vite-build' } : {}),
+    ...(command === 'build'
+      ? { cacheDir: 'node_modules/.vite-build' }
+      : {}),
+
     optimizeDeps: {
       // First reached through the SDR worker or a dynamic import. Pre-bundle
       // them at startup so first use cannot invalidate already-transformed
@@ -28,26 +33,50 @@ export function createBrowserViteConfig({
         'egm96-universal',
       ],
     },
+
     server: {
       host: host || 'localhost',
       port: parseInt(port, 10) || 4173,
+
+      // Allow the Render deployment hostname while preserving the
+      // existing localhost/local-network behavior.
       allowedHosts:
         host === '0.0.0.0' || host === '::'
           ? true
-          : ['localhost', '127.0.0.1', '.local'],
+          : [
+              'localhost',
+              '127.0.0.1',
+              '.local',
+              'semelioneye.onrender.com',
+            ],
+
       fs: {
-        deny: ['.env', '.env.*', '*.{crt,pem}', '**/.git/**', '**/ENVIRONMENT'],
+        deny: [
+          '.env',
+          '.env.*',
+          '*.{crt,pem}',
+          '**/.git/**',
+          '**/ENVIRONMENT',
+        ],
       },
+
       // These headers protect the document containing Provider Settings.
       headers: {
         'X-Frame-Options': 'DENY',
         'Content-Security-Policy': "frame-ancestors 'none'",
       },
     },
+
     define: {
-      'import.meta.env.GOOGLE_MAPS_API_KEY': JSON.stringify(googleApiKey),
-      'import.meta.env.CESIUM_ION_TOKEN': JSON.stringify(cesiumToken),
+      'import.meta.env.GOOGLE_MAPS_API_KEY':
+        JSON.stringify(googleApiKey),
+
+      'import.meta.env.CESIUM_ION_TOKEN':
+        JSON.stringify(cesiumToken),
     },
-    build: { chunkSizeWarningLimit: 1500 },
+
+    build: {
+      chunkSizeWarningLimit: 1500,
+    },
   };
 }
