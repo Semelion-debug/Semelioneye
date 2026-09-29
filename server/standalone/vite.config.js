@@ -9,15 +9,22 @@ const root = fileURLToPath(new URL('../../', import.meta.url));
 /** Load this checkout's configuration and attach its local provider middleware. */
 export default defineConfig(({ command, mode }) => {
   const loaded = loadEnv(mode, root, '');
+
   for (const [key, value] of Object.entries(loaded)) {
-    if (process.env[key] === undefined) process.env[key] = value;
+    if (process.env[key] === undefined) {
+      process.env[key] = value;
+    }
   }
+
   return createBrowserViteConfig({
     plugins: [...localProviderPlugins(), apiNotFoundPlugin()],
     googleApiKey: process.env.GOOGLE_MAPS_API_KEY,
     cesiumToken: process.env.CESIUM_ION_TOKEN,
-    host: process.env.HOST,
+
+    // Render supplies PORT automatically.
+    host: '0.0.0.0',
     port: process.env.PORT,
+
     command,
   });
 });
